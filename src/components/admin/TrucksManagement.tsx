@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import TruckDialog from "./TruckDialog";
+import { useDriverProfiles } from "@/hooks/useDriverProfiles";
 
 interface Truck {
   id: string;
@@ -21,9 +22,6 @@ interface Truck {
   driver_id: string | null;
   capacity: number;
   is_active: boolean;
-  profiles?: {
-    full_name: string;
-  };
 }
 
 const TrucksManagement = () => {
@@ -31,6 +29,7 @@ const TrucksManagement = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTruck, setSelectedTruck] = useState<Truck | null>(null);
+  const driverProfiles = useDriverProfiles();
 
   const fetchTrucks = async () => {
     const { data, error } = await supabase
@@ -45,26 +44,7 @@ const TrucksManagement = () => {
       return;
     }
 
-    // Fetch driver names separately
-    const trucksWithDrivers = await Promise.all(
-      (data || []).map(async (truck) => {
-        if (truck.driver_id) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", truck.driver_id)
-            .single();
-          
-          return {
-            ...truck,
-            profiles: profile ? { full_name: profile.full_name ?? "Unknown Driver" } : undefined,
-          };
-        }
-        return truck;
-      })
-    );
-
-    setTrucks(trucksWithDrivers);
+    setTrucks((data as Truck[]) || []);
     setLoading(false);
   };
 
@@ -135,9 +115,10 @@ const TrucksManagement = () => {
                   <TableRow key={truck.id}>
                     <TableCell className="font-medium">{truck.truck_number}</TableCell>
                     <TableCell>
-                      {truck.profiles?.full_name || (
-                        <span className="text-muted-foreground italic">No driver assigned</span>
-                      )}
+                      {truck.driver_id
+                        ? (driverProfiles[truck.driver_id] ?? "Unknown Driver")
+                        : <span className="text-muted-foreground italic">No driver assigned</span>
+                      }
                     </TableCell>
                     <TableCell>{truck.capacity}</TableCell>
                     <TableCell>
