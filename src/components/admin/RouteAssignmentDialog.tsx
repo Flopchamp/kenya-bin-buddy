@@ -71,7 +71,7 @@ const RouteAssignmentDialog = ({ open, onOpenChange, onSuccess }: RouteAssignmen
       .eq("is_active", true)
       .not("driver_id", "is", null);
 
-    setTrucks(data || []);
+    setTrucks((data as Truck[]) || []);
   };
 
   const fetchBins = async () => {
@@ -81,7 +81,7 @@ const RouteAssignmentDialog = ({ open, onOpenChange, onSuccess }: RouteAssignmen
       .gte("fill_level", 60)
       .order("fill_level", { ascending: false });
 
-    setBins(data || []);
+    setBins((data as Bin[]) || []);
   };
 
   const checkDriverAvailability = async (truckId: string) => {
@@ -99,7 +99,7 @@ const RouteAssignmentDialog = ({ open, onOpenChange, onSuccess }: RouteAssignmen
       console.error("Error checking driver availability:", error);
       setCanAcceptRoute(true); // Assume true on error
     } else {
-      setCanAcceptRoute(data);
+      setCanAcceptRoute(data ?? true);
     }
   };
 
