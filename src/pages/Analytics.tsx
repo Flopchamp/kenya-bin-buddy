@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { TrendingUp, Trash2, Truck, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,8 +20,7 @@ import {
 } from "recharts";
 
 const Analytics = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     totalBins: 0,
     fullBins: 0,
@@ -31,12 +29,6 @@ const Analytics = () => {
   });
   const [binStatusData, setBinStatusData] = useState<any[]>([]);
   const [fillLevelData, setFillLevelData] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
 
   const [collectionHistory, setCollectionHistory] = useState<any[]>([]);
 
@@ -126,10 +118,6 @@ const Analytics = () => {
       fetchAnalytics();
     }
   }, [user]);
-
-  if (loading || !user) {
-    return null;
-  }
 
   const statCards = [
     { label: "Total Bins", value: stats.totalBins, icon: Trash2, color: "primary" },

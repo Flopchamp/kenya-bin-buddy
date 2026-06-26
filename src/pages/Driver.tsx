@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { MapPin, CheckCircle2, Clock, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,19 +24,10 @@ interface Schedule {
 }
 
 const Driver = () => {
-  const { user, loading: authLoading } = useAuth();
-  const { isDriver, isAdmin, loading: roleLoading } = useUserRole();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isDriver, isAdmin } = useUserRole();
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    } else if (!roleLoading && !isDriver && !isAdmin) {
-      navigate("/dashboard");
-    }
-  }, [user, isDriver, isAdmin, authLoading, roleLoading, navigate]);
 
   const fetchSchedules = async () => {
     if (!user) return;
@@ -102,10 +92,6 @@ const Driver = () => {
       fetchSchedules();
     }
   };
-
-  if (authLoading || roleLoading || !user || (!isDriver && !isAdmin)) {
-    return null;
-  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {

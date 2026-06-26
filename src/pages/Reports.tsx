@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Plus, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,17 +23,10 @@ interface Report {
 }
 
 const Reports = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
 
   const fetchReports = async () => {
     if (!user) return;
@@ -86,10 +78,6 @@ const Reports = () => {
       };
     }
   }, [user]);
-
-  if (loading || !user) {
-    return null;
-  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {

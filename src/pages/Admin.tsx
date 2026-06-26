@@ -1,8 +1,4 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/contexts/AuthContext";
-import { useUserRole } from "@/hooks/useUserRole";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import Header from "@/components/Header";
 import BinsManagement from "@/components/admin/BinsManagement";
 import ScheduleManagement from "@/components/admin/ScheduleManagement";
@@ -15,22 +11,6 @@ import DriverWorkloadPanel from "@/components/admin/DriverWorkloadPanel";
 import RouteAssignmentsManagement from "@/components/admin/RouteAssignmentsManagement";
 
 const Admin = () => {
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin, loading: roleLoading } = useUserRole();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    } else if (!roleLoading && !isAdmin) {
-      navigate("/dashboard");
-    }
-  }, [user, isAdmin, authLoading, roleLoading, navigate]);
-
-  if (authLoading || roleLoading || !user || !isAdmin) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Header />

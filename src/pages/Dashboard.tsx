@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { MapPin, Trash2, TrendingUp, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,16 +18,9 @@ interface Bin {
 }
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [bins, setBins] = useState<Bin[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
 
   useEffect(() => {
     const fetchBins = async () => {
@@ -69,10 +61,6 @@ const Dashboard = () => {
       };
     }
   }, [user]);
-
-  if (loading || !user) {
-    return null;
-  }
 
   const totalBins = bins.length;
   const fullBins = bins.filter((b) => b.status === "full" || b.status === "overflow").length;
