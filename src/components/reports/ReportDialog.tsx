@@ -58,7 +58,7 @@ const ReportDialog = ({ open, onOpenChange, onSuccess }: ReportDialogProps) => {
         .from("bins")
         .select("id, bin_code, location_name")
         .order("bin_code");
-      setBins(data || []);
+      setBins((data as Bin[]) || []);
     };
 
     if (open) {

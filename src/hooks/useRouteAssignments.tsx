@@ -57,7 +57,7 @@ export const useRouteAssignments = () => {
 
         return {
           ...assignment,
-          profiles: profile ? { full_name: profile.full_name } : undefined,
+          profiles: profile ? { full_name: profile.full_name ?? "Unknown Driver" } : undefined,
         };
       })
     );
