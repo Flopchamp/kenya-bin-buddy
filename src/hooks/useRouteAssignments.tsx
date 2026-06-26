@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useDriverProfiles } from "./useDriverProfiles";
 
 export interface RouteAssignment {
   id: string;
@@ -27,8 +28,9 @@ export interface RouteAssignment {
 }
 
 export const useRouteAssignments = () => {
-  const [assignments, setAssignments] = useState<RouteAssignment[]>([]);
+  const [rawAssignments, setRawAssignments] = useState<RouteAssignment[]>([]);
   const [loading, setLoading] = useState(true);
+  const driverProfiles = useDriverProfiles();
 
   const fetchAssignments = async () => {
     const { data, error } = await supabase
@@ -46,49 +48,32 @@ export const useRouteAssignments = () => {
       return;
     }
 
-    // Fetch driver names separately
-    const assignmentsWithDrivers = await Promise.all(
-      (data || []).map(async (assignment) => {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", assignment.driver_id)
-          .single();
-
-        return {
-          ...assignment,
-          profiles: profile ? { full_name: profile.full_name ?? "Unknown Driver" } : undefined,
-        };
-      })
-    );
-
-    setAssignments(assignmentsWithDrivers);
+    setRawAssignments((data as unknown as RouteAssignment[]) || []);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchAssignments();
 
-    // Subscribe to real-time updates
     const channel = supabase
       .channel("route_assignments_changes")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "route_assignments",
-        },
-        () => {
-          fetchAssignments();
-        }
+        { event: "*", schema: "public", table: "route_assignments" },
+        () => { fetchAssignments(); }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  // Merge driver names from the shared React Query cache — no extra requests
+  const assignments: RouteAssignment[] = rawAssignments.map((a) => ({
+    ...a,
+    profiles: {
+      full_name: driverProfiles[a.driver_id] ?? "Unknown Driver",
+    },
+  }));
 
   return { assignments, loading, refetch: fetchAssignments };
 };
