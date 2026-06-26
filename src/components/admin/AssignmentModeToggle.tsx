@@ -21,7 +21,7 @@ const AssignmentModeToggle = () => {
       .select("assignment_mode")
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error("Error fetching assignment mode:", error);
     } else {
       setMode(data.assignment_mode);

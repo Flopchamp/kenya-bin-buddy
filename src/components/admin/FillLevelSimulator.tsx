@@ -21,7 +21,7 @@ const FillLevelSimulator = () => {
       const updates = bins?.map(async (bin) => {
         // Increase fill level by 5-15%
         const increase = Math.floor(Math.random() * 11) + 5;
-        let newFillLevel = Math.min(bin.fill_level + increase, 100);
+        let newFillLevel = Math.min((bin.fill_level ?? 0) + increase, 100);
 
         // Determine new status based on fill level
         let newStatus: "empty" | "half" | "full" | "overflow" = "empty";
