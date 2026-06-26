@@ -64,8 +64,8 @@ const ScheduleDialog = ({ open, onOpenChange, onSuccess }: ScheduleDialogProps) 
         supabase.from("trucks").select("id, truck_number").eq("is_active", true).order("truck_number"),
       ]);
 
-      setBins(binsRes.data || []);
-      setTrucks(trucksRes.data || []);
+      setBins((binsRes.data as Bin[]) || []);
+      setTrucks((trucksRes.data as Truck[]) || []);
     };
 
     if (open) {

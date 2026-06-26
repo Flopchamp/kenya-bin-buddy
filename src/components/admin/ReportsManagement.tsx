@@ -73,7 +73,7 @@ const ReportsManagement = () => {
       },
     }));
 
-    setReports(enrichedReports || []);
+    setReports((enrichedReports as unknown as Report[]) || []);
     setLoading(false);
   };
 
