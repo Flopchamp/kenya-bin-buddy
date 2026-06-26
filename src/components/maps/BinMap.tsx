@@ -34,9 +34,19 @@ const BinMap = ({ bins, center = [-1.286389, 36.817223], zoom = 12 }: BinMapProp
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
+    // Compute initial centre from bin midpoint; fall back to prop default
+    const validBins = bins.filter((b) => b.latitude && b.longitude);
+    const initialCenter: [number, number] =
+      validBins.length > 0
+        ? [
+            validBins.reduce((sum, b) => sum + b.latitude, 0) / validBins.length,
+            validBins.reduce((sum, b) => sum + b.longitude, 0) / validBins.length,
+          ]
+        : center;
+
     // Initialize map
     if (!mapRef.current) {
-      mapRef.current = L.map(mapContainerRef.current).setView(center, zoom);
+      mapRef.current = L.map(mapContainerRef.current).setView(initialCenter, zoom);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
