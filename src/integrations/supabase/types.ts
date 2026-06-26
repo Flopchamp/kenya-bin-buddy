@@ -338,7 +338,7 @@ export type Database = {
         Row: {
           assigned_at: string | null
           assigned_by: string | null
-          assignment_type: string | null
+          assignment_type: Database["public"]["Enums"]["assignment_mode"] | null
           bin_ids: string[]
           completed_at: string | null
           created_at: string | null
@@ -357,7 +357,7 @@ export type Database = {
         Insert: {
           assigned_at?: string | null
           assigned_by?: string | null
-          assignment_type?: string | null
+          assignment_type?: Database["public"]["Enums"]["assignment_mode"] | null
           bin_ids: string[]
           completed_at?: string | null
           created_at?: string | null
@@ -376,7 +376,7 @@ export type Database = {
         Update: {
           assigned_at?: string | null
           assigned_by?: string | null
-          assignment_type?: string | null
+          assignment_type?: Database["public"]["Enums"]["assignment_mode"] | null
           bin_ids?: string[]
           completed_at?: string | null
           created_at?: string | null
