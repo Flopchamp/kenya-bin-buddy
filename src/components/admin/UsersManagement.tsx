@@ -58,7 +58,7 @@ const UsersManagement = () => {
       return {
         id: profile.id,
         email: "-", // Email not available from profiles table
-        full_name: profile.full_name,
+        full_name: profile.full_name ?? "-",
         roles: userRoles,
       };
     });

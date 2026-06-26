@@ -57,7 +57,7 @@ const TrucksManagement = () => {
           
           return {
             ...truck,
-            profiles: profile || undefined,
+            profiles: profile ? { full_name: profile.full_name ?? "Unknown Driver" } : undefined,
           };
         }
         return truck;
