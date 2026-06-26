@@ -14,7 +14,7 @@ export interface RouteAssignment {
   status: string;
   assigned_at: string;
   assigned_by: string | null;
-  assignment_type: string;
+  assignment_type: "automatic" | "manual" | null;
   started_at: string | null;
   completed_at: string | null;
   notes: string | null;
