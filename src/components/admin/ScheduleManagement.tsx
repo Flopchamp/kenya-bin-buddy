@@ -54,7 +54,7 @@ const ScheduleManagement = () => {
       console.error("Error fetching schedules:", error);
       toast.error("Failed to load schedules");
     } else {
-      setSchedules(data || []);
+      setSchedules((data as unknown as Schedule[]) || []);
     }
     setLoading(false);
   };

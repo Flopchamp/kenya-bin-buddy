@@ -75,7 +75,9 @@ const TruckDialog = ({ open, onOpenChange, truck, onSuccess }: TruckDialogProps)
           .select("id, full_name")
           .in("id", driverIds);
 
-        setDrivers(profiles || []);
+        setDrivers(
+          (profiles || []).map((p) => ({ ...p, full_name: p.full_name ?? "Unknown Driver" }))
+        );
       }
     };
 
