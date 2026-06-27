@@ -334,12 +334,47 @@ export type Database = {
         }
         Relationships: []
       }
+      route_assignment_bins: {
+        Row: {
+          bin_id: string
+          created_at: string | null
+          id: string
+          route_assignment_id: string
+        }
+        Insert: {
+          bin_id: string
+          created_at?: string | null
+          id?: string
+          route_assignment_id: string
+        }
+        Update: {
+          bin_id?: string
+          created_at?: string | null
+          id?: string
+          route_assignment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "route_assignment_bins_route_assignment_id_fkey"
+            columns: ["route_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "route_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "route_assignment_bins_bin_id_fkey"
+            columns: ["bin_id"]
+            isOneToOne: false
+            referencedRelation: "bins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       route_assignments: {
         Row: {
           assigned_at: string | null
           assigned_by: string | null
           assignment_type: Database["public"]["Enums"]["assignment_mode"] | null
-          bin_ids: string[]
           completed_at: string | null
           created_at: string | null
           driver_id: string
@@ -358,7 +393,6 @@ export type Database = {
           assigned_at?: string | null
           assigned_by?: string | null
           assignment_type?: Database["public"]["Enums"]["assignment_mode"] | null
-          bin_ids: string[]
           completed_at?: string | null
           created_at?: string | null
           driver_id: string
@@ -377,7 +411,6 @@ export type Database = {
           assigned_at?: string | null
           assigned_by?: string | null
           assignment_type?: Database["public"]["Enums"]["assignment_mode"] | null
-          bin_ids?: string[]
           completed_at?: string | null
           created_at?: string | null
           driver_id?: string

@@ -127,24 +127,45 @@ const RouteAssignmentDialog = ({ open, onOpenChange, onSuccess }: RouteAssignmen
 
     const { data: userData } = await supabase.auth.getUser();
 
-    const { error } = await supabase.from("route_assignments").insert([
-      {
-        truck_id: formData.truck_id,
-        driver_id: truck.driver_id,
-        route_name: formData.route_name,
-        bin_ids: formData.bin_ids,
-        total_bins: formData.bin_ids.length,
-        estimated_distance_km: parseFloat(formData.estimated_distance_km) || null,
-        estimated_duration_minutes: parseInt(formData.estimated_duration_minutes) || null,
-        assignment_type: "manual",
-        assigned_by: userData.user?.id,
-        notes: formData.notes || null,
-      },
-    ]);
+    // Step 1: insert the route assignment, get back its id
+    const { data: assignment, error } = await supabase
+      .from("route_assignments")
+      .insert([
+        {
+          truck_id: formData.truck_id,
+          driver_id: truck.driver_id,
+          route_name: formData.route_name,
+          total_bins: formData.bin_ids.length,
+          estimated_distance_km: parseFloat(formData.estimated_distance_km) || null,
+          estimated_duration_minutes: parseInt(formData.estimated_duration_minutes) || null,
+          assignment_type: "manual" as const,
+          assigned_by: userData.user?.id,
+          notes: formData.notes || null,
+        },
+      ])
+      .select("id")
+      .single();
 
-    if (error) {
+    if (error || !assignment) {
       toast.error("Failed to create route assignment");
       console.error(error);
+      setLoading(false);
+      return;
+    }
+
+    // Step 2: insert the join rows
+    const { error: binsError } = await supabase
+      .from("route_assignment_bins")
+      .insert(
+        formData.bin_ids.map((binId) => ({
+          route_assignment_id: assignment.id,
+          bin_id: binId,
+        }))
+      );
+
+    if (binsError) {
+      toast.error("Route created but bin assignments failed");
+      console.error(binsError);
     } else {
       toast.success("Route assigned successfully");
       onSuccess();

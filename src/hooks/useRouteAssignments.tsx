@@ -8,7 +8,6 @@ export interface RouteAssignment {
   truck_id: string;
   driver_id: string;
   route_name: string;
-  bin_ids: string[];
   total_bins: number;
   estimated_distance_km: number;
   estimated_duration_minutes: number;
