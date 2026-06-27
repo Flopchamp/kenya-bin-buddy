@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,58 +11,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BinDialog from "./BinDialog";
 import FillLevelSimulator from "./FillLevelSimulator";
-
-interface Bin {
-  id: string;
-  bin_code: string;
-  location_name: string;
-  fill_level: number;
-  status: string;
-  latitude: number;
-  longitude: number;
-}
+import { useBins, BINS_QUERY_KEY, type Bin } from "@/hooks/useBins";
 
 const BinsManagement = () => {
-  const [bins, setBins] = useState<Bin[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: bins = [], isLoading } = useBins();
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedBin, setSelectedBin] = useState<Bin | null>(null);
 
-  const fetchBins = async () => {
-    const { data, error } = await supabase
-      .from("bins")
-      .select("*")
-      .order("bin_code");
-
-    if (error) {
-      console.error("Error fetching bins:", error);
-      toast.error("Failed to load bins");
-    } else {
-      setBins(data || []);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchBins();
-  }, []);
-
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this bin?")) return;
+
+    // Optimistic update: remove immediately, restore on error
+    const prev = queryClient.getQueryData<Bin[]>(BINS_QUERY_KEY) ?? [];
+    queryClient.setQueryData<Bin[]>(BINS_QUERY_KEY, (old) =>
+      (old ?? []).filter((b) => b.id !== id)
+    );
 
     const { error } = await supabase.from("bins").delete().eq("id", id);
 
     if (error) {
       toast.error("Failed to delete bin");
-      console.error(error);
+      queryClient.setQueryData<Bin[]>(BINS_QUERY_KEY, prev);
     } else {
       toast.success("Bin deleted successfully");
-      fetchBins();
     }
+  };
+
+  const handleMutationSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: BINS_QUERY_KEY });
   };
 
   const handleEdit = (bin: Bin) => {
@@ -92,7 +74,7 @@ const BinsManagement = () => {
   return (
     <>
       <FillLevelSimulator />
-      
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -107,7 +89,7 @@ const BinsManagement = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {isLoading ? (
             <p className="text-center text-muted-foreground py-8">Loading bins...</p>
           ) : bins.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No bins found</p>
@@ -167,7 +149,7 @@ const BinsManagement = () => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         bin={selectedBin}
-        onSuccess={fetchBins}
+        onSuccess={handleMutationSuccess}
       />
     </>
   );

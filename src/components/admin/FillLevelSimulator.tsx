@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Activity, Loader2 } from "lucide-react";
+import { BINS_QUERY_KEY } from "@/hooks/useBins";
 
 const FillLevelSimulator = () => {
   const [simulating, setSimulating] = useState(false);
+  const queryClient = useQueryClient();
 
   const simulateFillLevels = async () => {
     setSimulating(true);
@@ -45,6 +48,7 @@ const FillLevelSimulator = () => {
       await Promise.all(updates || []);
 
       toast.success("Bin fill levels updated successfully");
+      queryClient.invalidateQueries({ queryKey: BINS_QUERY_KEY });
     } catch (error) {
       console.error("Error simulating fill levels:", error);
       toast.error("Failed to update fill levels");

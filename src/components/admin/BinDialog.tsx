@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
+import type { Bin } from "@/hooks/useBins";
 
 const binSchema = z.object({
   bin_code: z.string().trim().min(1, { message: "Bin code is required" }).max(50, { message: "Bin code must be less than 50 characters" }),
@@ -30,16 +31,6 @@ const binSchema = z.object({
   fill_level: z.number({ invalid_type_error: "Fill level must be a number" }).min(0).max(100),
   status: z.enum(["empty", "half", "full", "overflow"]),
 });
-
-interface Bin {
-  id: string;
-  bin_code: string;
-  location_name: string;
-  fill_level: number;
-  status: string;
-  latitude: number;
-  longitude: number;
-}
 
 interface BinDialogProps {
   open: boolean;
